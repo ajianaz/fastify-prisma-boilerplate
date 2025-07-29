@@ -1,16 +1,13 @@
-# Dockerfile.staging - Staging mode dengan PM2
+# Dockerfile.staging - Staging mode dengan PM2 dan TypeScript
 FROM node:18-alpine
 
 # Set working directory
 WORKDIR /app
 
-# Install PM2 globally
-RUN npm install -g pm2
-
 # Copy package files
 COPY package*.json ./
 
-# Install dependencies (including dev dependencies for build)
+# Install dependencies
 RUN npm install
 
 # Copy source code
@@ -19,8 +16,8 @@ COPY . .
 # Generate Prisma client
 RUN npx prisma generate
 
-# Remove dev dependencies for smaller image
-RUN npm prune --production
+# Build TypeScript to JavaScript
+RUN npm run build
 
 # Expose port
 EXPOSE 3000
@@ -30,4 +27,3 @@ COPY ecosystem.config.js .
 
 # Start with PM2
 CMD ["pm2-runtime", "start", "ecosystem.config.js", "--env", "staging"]
-

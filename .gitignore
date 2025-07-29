@@ -89,3 +89,4 @@ temp/
 # PM2
 .pm2/
 
+postgres_data/

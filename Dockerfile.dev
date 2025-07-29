@@ -1,11 +1,11 @@
-# Dockerfile.dev - Development mode dengan nodemon
+# Dockerfile.dev - Development mode dengan TypeScript
 FROM node:18-alpine
 
 # Set working directory
 WORKDIR /app
 
-# Install nodemon globally untuk development
-RUN npm install -g nodemon
+# Install ts-node globally untuk development
+RUN npm install -g ts-node nodemon
 
 # Copy package files
 COPY package*.json ./
@@ -22,6 +22,5 @@ RUN npx prisma generate
 # Expose port
 EXPOSE 3000
 
-# Start with nodemon for hot reload
-CMD ["nodemon", "server.js"]
-
+# Start with ts-node for hot reload
+CMD ["npm", "run", "dev"]

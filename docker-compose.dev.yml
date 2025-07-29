@@ -13,7 +13,7 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - ./postgres_data:/var/lib/postgresql/data
     networks:
       - fastify-network
 
@@ -37,7 +37,7 @@ services:
       - postgres
     networks:
       - fastify-network
-    command: sh -c "sleep 10 && npx prisma migrate dev --name init && npx prisma db seed && nodemon server.js"
+    command: sh -c "sleep 10 && npx prisma migrate dev --name init && npx prisma db seed && npm run dev"
 
 volumes:
   postgres_data:
@@ -45,4 +45,3 @@ volumes:
 networks:
   fastify-network:
     driver: bridge
-
