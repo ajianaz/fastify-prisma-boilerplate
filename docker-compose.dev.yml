@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: fastify-postgres-dev
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: fastify_prisma_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - fastify-network
+
+  # Fastify Application (Development)
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: fastify-app-dev
+    restart: unless-stopped
+    environment:
+      NODE_ENV: development
+      DATABASE_URL: "postgresql://postgres:password@postgres:5432/fastify_prisma_db?schema=public"
+      PORT: 3000
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app
+      - /app/node_modules
+    depends_on:
+      - postgres
+    networks:
+      - fastify-network
+    command: sh -c "sleep 10 && npx prisma migrate dev --name init && npx prisma db seed && nodemon server.js"
+
+volumes:
+  postgres_data:
+
+networks:
+  fastify-network:
+    driver: bridge
+

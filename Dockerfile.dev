@@ -1,0 +1,27 @@
+# Dockerfile.dev - Development mode dengan nodemon
+FROM node:18-alpine
+
+# Set working directory
+WORKDIR /app
+
+# Install nodemon globally untuk development
+RUN npm install -g nodemon
+
+# Copy package files
+COPY package*.json ./
+
+# Install dependencies
+RUN npm install
+
+# Copy source code
+COPY . .
+
+# Generate Prisma client
+RUN npx prisma generate
+
+# Expose port
+EXPOSE 3000
+
+# Start with nodemon for hot reload
+CMD ["nodemon", "server.js"]
+

@@ -1,0 +1,33 @@
+# Dockerfile.prod - Production mode dengan PM2
+FROM node:18-alpine
+
+# Set working directory
+WORKDIR /app
+
+# Install PM2 globally
+RUN npm install -g pm2
+
+# Copy package files
+COPY package*.json ./
+
+# Install dependencies (including dev dependencies for build)
+RUN npm install
+
+# Copy source code
+COPY . .
+
+# Generate Prisma client
+RUN npx prisma generate
+
+# Remove dev dependencies for smaller image
+RUN npm prune --production
+
+# Expose port
+EXPOSE 3000
+
+# Copy PM2 ecosystem file
+COPY ecosystem.config.js .
+
+# Start with PM2
+CMD ["pm2-runtime", "start", "ecosystem.config.js", "--env", "production"]
+

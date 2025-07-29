@@ -1,0 +1,53 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: fastify-postgres-staging
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: fastify_prisma_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password}
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_staging_data:/var/lib/postgresql/data
+    networks:
+      - fastify-staging-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Fastify Application (Staging)
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.staging
+    container_name: fastify-app-staging
+    restart: unless-stopped
+    environment:
+      NODE_ENV: staging
+      DATABASE_URL: "postgresql://postgres:${POSTGRES_PASSWORD:-password}@postgres:5432/fastify_prisma_db?schema=public"
+      PORT: 3000
+    ports:
+      - "3001:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - fastify-staging-network
+    volumes:
+      - ./logs:/app/logs
+    command: sh -c "sleep 15 && npx prisma migrate deploy && pm2-runtime start ecosystem.config.js --env staging"
+
+volumes:
+  postgres_staging_data:
+
+networks:
+  fastify-staging-network:
+    driver: bridge
+
