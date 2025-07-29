@@ -1,6 +1,7 @@
-const postController = require('../controllers/postController')
+import { FastifyInstance } from 'fastify'
+import * as postController from '../controllers/postController'
 
-async function postRoutes(fastify, options) {
+async function postRoutes(fastify: FastifyInstance, options: any) {
   fastify.get('/posts', postController.getAllPosts)
   fastify.get('/posts/:id', postController.getPostById)
   fastify.get('/posts/published', postController.getPublishedPosts)
@@ -44,4 +45,4 @@ async function postRoutes(fastify, options) {
   fastify.delete('/posts/:id', postController.deletePost)
 }
 
-module.exports = postRoutes
+export default postRoutes
